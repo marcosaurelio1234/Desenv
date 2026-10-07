@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rota Certa — Viagens</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0F8B8D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rota Certa">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{--bg:#EEF4F5;--card:#fff;--ink:#10252E;--mut:#5B707A;--sea:#0F8B8D;--sun:#F2B134;--line:#D3E0E3;--bad:#C2410C;--ok:#15803D}
+@media(prefers-color-scheme:dark){:root:not([data-t=l]){--bg:#0B171C;--card:#13262D;--ink:#E8F1F3;--mut:#93A9B1;--line:#25404A;--bad:#FB923C;--ok:#4ADE80}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:680px;margin:0 auto;padding:16px}
+h1{font:700 2rem/1.1 ui-serif,Georgia,serif;margin:12px 0 4px}h2{font:700 1.3rem ui-serif,Georgia,serif;margin:0 0 8px}h3{margin:0;font-size:1.05rem}
+.sub{color:var(--mut);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px}
+label{display:block;font-weight:600;font-size:.9rem;margin:12px 0 4px}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;min-height:44px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{margin:0;font-weight:500}
+.chips input{position:absolute;opacity:0;width:0;min-height:0}
+.chips span{display:inline-block;padding:9px 14px;border:1px solid var(--line);border-radius:99px;background:var(--bg);min-height:44px;line-height:24px}
+.chips input:checked+span{background:var(--sea);border-color:var(--sea);color:#fff}
+.chips input:focus-visible+span,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 16px;min-height:48px;background:var(--sun);color:#10252E;width:100%;margin-top:16px;cursor:pointer}
+button.alt{background:transparent;border:1px solid var(--sea);color:var(--sea);margin-top:10px}
+.hint{font-size:.85rem;color:var(--mut)}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.score{font-weight:700;color:var(--sea)}
+.tag{display:inline-block;font-size:.8rem;padding:2px 10px;border-radius:99px;background:var(--bg);border:1px solid var(--line);margin:2px 4px 2px 0}
+.up{color:var(--bad)}.down{color:var(--ok)}
+.big{font:700 1.6rem ui-serif,Georgia,serif}
+svg{width:100%;height:auto;display:block}
+.day{border-top:1px solid var(--line);padding:8px 0}.day b{display:block}
+details summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+.pk{border:1px dashed var(--sea);border-radius:12px;padding:12px;margin-top:10px}
+.sim{font-size:.8rem;color:var(--mut);text-align:center;margin:20px 0}
+#instala{display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>Rota Certa</h1>
+<p class="sub">Diga como quer viajar. Mostramos para onde ir, quando ir e quanto deve custar.</p>
+
+<div id="instala" class="card hint">Para instalar: toque em Compartilhar no Safari e depois em <b>Adicionar à Tela de Início</b>.</div>
+
+<form id="f" class="card" onsubmit="return false">
+<h2>Sua viagem</h2>
+<label>Clima desejado</label>
+<select id="clima"><option value="q">Quente</option><option value="a">Ameno</option><option value="f">Frio</option></select>
+<label>Estilo de viagem</label>
+<div class="chips" id="estilos">
+<label><input type="radio" name="est" value="aventura" checked><span>Aventura</span></label>
+<label><input type="radio" name="est" value="luxo"><span>Luxo</span></label>
+<label><input type="radio" name="est" value="familia"><span>Família</span></label>
+<label><input type="radio" name="est" value="cultural"><span>Cultural</span></label>
+</div>
+<div class="row">
+<div><label for="orc">Orçamento total (R$)</label><input id="orc" type="number" inputmode="numeric" value="12000" min="500" step="500"></div>
+<div><label for="pes">Pessoas</label><input id="pes" type="number" inputmode="numeric" value="2" min="1" max="12"></div>
+<div><label for="dur">Duração (dias)</label><input id="dur" type="number" inputmode="numeric" value="7" min="2" max="30"></div>
+<div><label for="de">Disponível de</label><select id="de"></select></div>
+</div>
+<label for="ate">Disponível até</label><select id="ate"></select>
+<label>Interesses do roteiro</label>
+<div class="chips" id="ints">
+<label><input type="checkbox" value="m" checked><span>Museus</span></label>
+<label><input type="checkbox" value="n" checked><span>Natureza</span></label>
+<label><input type="checkbox" value="c"><span>Compras</span></label>
+<label><input type="checkbox" value="g" checked><span>Gastronomia</span></label>
+</div>
+<button id="go">Ver sugestões</button>
+</form>
+
+<section id="res"></section>
+<section id="alertas"></section>
+<p class="sim">Os preços, o fluxo turístico e as previsões usam dados de exemplo. Para valores reais, é preciso conectar um serviço de preços.</p>
+</main>
+
+<script>
+const M=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const MN=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const BR=n=>'R$ '+Math.round(n).toLocaleString('pt-BR');
+// d: diária por pessoa, v: voo por pessoa, p: índice de preço por mês, f: fluxo (0-100), a: atividades m/n/c/g
+const D=[
+{id:'lis',n:'Lisboa',pa:'Portugal',cl:'a',es:['cultural','familia'],d:450,v:4500,p:[.8,.8,.85,.95,1,1.15,1.3,1.35,1.1,.95,.8,.85],f:[35,35,45,60,70,85,95,95,75,55,35,50],
+ a:{m:['Mosteiro dos Jerónimos','Museu do Azulejo'],n:['Miradouros de Alfama','Parque de Monsanto'],c:['Rua Augusta e Chiado'],g:['Pastéis de Belém','Jantar com fado']}},
+{id:'gra',n:'Gramado',pa:'Brasil',cl:'f',es:['familia','luxo'],d:500,v:900,p:[1.1,.8,.8,.85,.85,1,1.35,1.1,.8,.85,.9,1.3],f:[60,35,35,40,40,60,95,70,35,40,45,90],
+ a:{m:['Museu de Cera Dreamland','Museu do Chocolate'],n:['Lago Negro','Cascata do Caracol'],c:['Rua Coberta'],g:['Fondue clássico','Café colonial']}},
+{id:'fen',n:'Fernando de Noronha',pa:'Brasil',cl:'q',es:['aventura','luxo'],d:1100,v:2200,p:[1.2,.9,.85,.8,.85,.9,1.2,1.1,1,1,1,1.3],f:[80,50,40,35,40,55,85,70,55,55,60,90],
+ a:{m:['Projeto Tamar','Forte dos Remédios'],n:['Mergulho na Baía do Sancho','Trilha do Atalaia'],c:['Artesanato da Vila dos Remédios'],g:['Frutos do mar no Porto','Pôr do sol com petiscos']}},
+{id:'bon',n:'Bonito',pa:'Brasil',cl:'q',es:['aventura','familia'],d:600,v:1100,p:[1.2,.9,.85,.9,.9,1,1.3,1.2,1,.9,.85,1.2],f:[75,40,35,40,40,55,90,75,50,40,40,75],
+ a:{m:['Centro de Artesanato','Memorial da Vila'],n:['Flutuação no Rio Sucuri','Gruta do Lago Azul'],c:['Lojas de artesanato'],g:['Pintado na brasa','Churrasco pantaneiro']}},
+{id:'sal',n:'Salvador',pa:'Brasil',cl:'q',es:['cultural','familia'],d:380,v:1000,p:[1.3,1.2,.85,.8,.8,.8,1.1,.9,.85,.9,.95,1.3],f:[95,90,45,35,30,35,70,45,40,45,50,90],
+ a:{m:['Pelourinho e Igreja de São Francisco','Museu Afro-Brasileiro'],n:['Praia do Porto da Barra','Ilha de Itaparica'],c:['Mercado Modelo'],g:['Acarajé no Rio Vermelho','Moqueca baiana']}},
+{id:'pat',n:'Patagônia Chilena',pa:'Chile',cl:'f',es:['aventura'],d:550,v:2600,p:[1.3,1.3,1,.85,.75,.7,.8,.8,.85,.95,1.1,1.3],f:[95,90,60,35,20,15,25,25,35,55,75,90],
+ a:{m:['Museu Salesiano','Museu Regional de Magallanes'],n:['Trilha Torres del Paine','Glaciar Grey'],c:['Feira artesanal de Puerto Natales'],g:['Cordeiro patagônico','Café com kuchen']}},
+{id:'par',n:'Paris',pa:'França',cl:'a',es:['cultural','luxo'],d:800,v:5200,p:[.8,.8,.9,1.05,1.1,1.2,1.3,1.25,1.1,1,.85,1.15],f:[35,35,50,70,80,90,95,90,75,60,40,75],
+ a:{m:['Museu do Louvre','Musée d\'Orsay'],n:['Jardins de Luxemburgo','Passeio de barco no Sena'],c:['Galeries Lafayette'],g:['Bistrô em Le Marais','Padarias de Montmartre']}},
+{id:'can',n:'Cancún',pa:'México',cl:'q',es:['familia','luxo'],d:700,v:4300,p:[1.2,1.2,1.25,1,.8,.8,1,.95,.75,.8,.9,1.3],f:[85,85,90,60,40,40,70,60,35,45,55,95],
+ a:{m:['Ruínas de Tulum','Museu Maya de Cancún'],n:['Snorkel em Isla Mujeres','Cenotes de Yucatán'],c:['La Isla Shopping Village'],g:['Tacos al pastor','Ceviche à beira-mar']}}
+];
+const $=s=>document.querySelector(s),now=new Date().getMonth();
+['de','ate'].forEach((id,k)=>{$('#'+id).innerHTML=MN.map((m,i)=>`<option value="${i}">${m}</option>`).join('');$('#'+id).value=k?(now+5)%12:(now+1)%12});
+if(!navigator.standalone&&/iPhone|iPad/.test(navigator.userAgent))$('#instala').style.display='block';
+
+function janela(a,b){const r=[];for(let i=a;;i=(i+1)%12){r.push(i);if(i===b)break}return r}
+function custo(x,m,pes,dur){return pes*(x.v+dur*x.d)*x.p[m]}
+function analisa(x,o){
+  const js=janela(o.de,o.ate);
+  const melhor=js.reduce((a,b)=>(x.p[b]+x.f[b]/250)<(x.p[a]+x.f[a]/250)?b:a);
+  const pior=js.reduce((a,b)=>x.p[b]>x.p[a]?b:a);
+  const c=custo(x,melhor,o.pes,o.dur),cp=custo(x,pior,o.pes,o.dur);
+  const fut=[1,2,3].map(i=>x.p[(now+i)%12]).reduce((a,b)=>a+b)/3,tend=fut/x.p[now]-1;
+  let s=(x.cl===o.cl?30:x.cl==='a'?12:0)+(x.es.includes(o.est)?40:8);
+  const r=c/o.orc;s+=r<=1?30:Math.max(0,30-(r-1)*60);
+  return{x,melhor,pior,c,cp,eco:1-c/cp,tend,s:Math.round(s),js,fluxo:x.f[melhor]};
+}
+function roteiro(x,dur,ints){
+  const t=ints.length?ints:['m','n','c','g'],L=[];
+  t.forEach(k=>x.a[k].forEach(a=>L.push(a)));
+  const dias=[];let i=0;
+  for(let d=0;d<dur;d++){const s=[];for(let j=0;j<3;j++)s.push(L[i++%L.length]);dias.push(s)}
+  return dias;
+}
+function pacote(a,o){
+  const nivel=[['Essencial','voo + hospedagem',1.05],['Conforto','voo + hospedagem + seguro + transfer',1.18],['Premium','tudo do Conforto + guia local + upgrade de quarto',1.4]];
+  let esc=nivel[0];nivel.forEach(n=>{if(a.c*n[2]<=o.orc)esc=n});
+  return{n:esc[0],i:esc[1],p:a.c*esc[2]};
+}
+function grafico(a){
+  const W=340,H=130,bw=22,g=6.2;let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Fluxo turístico por mês">`;
+  a.x.f.forEach((v,i)=>{const h=v*.8,x=i*(bw+g)+3,y=100-h,dentro=a.js.includes(i),best=i===a.melhor;
+    s+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="4" fill="${best?'var(--sun)':dentro?'var(--sea)':'var(--line)'}"/>`;
+    s+=`<text x="${x+bw/2}" y="118" text-anchor="middle" font-size="9.5" fill="var(--mut)">${M[i]}</text>`;
+    if(best)s+=`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink)">${v}%</text>`});
+  return s+'</svg>';
+}
+function ics(a,o,dias){
+  const ano=a.melhor>=now?new Date().getFullYear():new Date().getFullYear()+1;
+  const dt=(d)=>d.toISOString().slice(0,10).replace(/-/g,'');
+  let t='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Rota Certa//PT\r\n';
+  dias.forEach((s,i)=>{const d=new Date(Date.UTC(ano,a.melhor,10+i)),e=new Date(Date.UTC(ano,a.melhor,11+i));
+    t+=`BEGIN:VEVENT\r\nUID:${a.x.id}-${i}@rotacerta\r\nDTSTAMP:${dt(new Date())}T000000Z\r\nDTSTART;VALUE=DATE:${dt(d)}\r\nDTEND;VALUE=DATE:${dt(e)}\r\nSUMMARY:${a.x.n} - Dia ${i+1}\r\nDESCRIPTION:Manhã: ${s[0]}\\nTarde: ${s[1]}\\nNoite: ${s[2]}\r\nEND:VEVENT\r\n`});
+  const u=URL.createObjectURL(new Blob([t+'END:VCALENDAR'],{type:'text/calendar'})),l=document.createElement('a');
+  l.href=u;l.download=`roteiro-${a.x.id}.ics`;document.body.appendChild(l);l.click();l.remove();
+}
+let ult=null;
+$('#go').onclick=()=>{
+  const o={cl:$('#clima').value,est:document.querySelector('input[name=est]:checked').value,orc:+$('#orc').value||1,pes:Math.max(1,+$('#pes').value||1),dur:Math.max(2,+$('#dur').value||7),de:+$('#de').value,ate:+$('#ate').value,
+    ints:[...document.querySelectorAll('#ints input:checked')].map(i=>i.value)};
+  const top=D.map(x=>analisa(x,o)).sort((a,b)=>b.s-a.s).slice(0,3);ult={o,top};
+  $('#res').innerHTML='<h2>Melhores opções para você</h2>'+top.map((a,k)=>{
+    const dias=roteiro(a.x,o.dur,o.ints),pk=pacote(a,o),sobe=a.tend>.03,cai=a.tend<-.03,sem=Math.max(2,Math.round(Math.abs(a.tend)*40));
+    const pt=sobe?`<span class="up">Os preços tendem a subir cerca de ${Math.round(a.tend*100)}% nos próximos 3 meses. Compre logo.</span>`:cai?`<span class="down">Os preços podem cair cerca de ${Math.round(-a.tend*100)}% nos próximos 3 meses. Se puder, espere ${sem} semanas e economize até ${Math.round(-a.tend*100)}%.</span>`:'Os preços devem ficar estáveis nos próximos 3 meses.';
+    return `<article class="card"><div class="top"><div><h3>${a.x.n}</h3><span class="hint">${a.x.pa}</span></div><span class="score">${a.s}% de afinidade</span></div>
+    <p class="big">${BR(a.c)} <span class="hint">para ${o.pes} ${o.pes>1?'pessoas':'pessoa'}</span></p>
+    <p>Melhor período: <b>${MN[a.melhor]}</b>, com fluxo de ${a.fluxo}% e economia de ${Math.round(a.eco*100)}% sobre ${MN[a.pior]}.${a.c>o.orc?` <span class="up">Passa do orçamento em ${BR(a.c-o.orc)}.</span>`:''}</p>
+    <p>${pt}</p>
+    <h3>Fluxo turístico por mês</h3>${grafico(a)}<p class="hint">Barras maiores são meses mais cheios. Em amarelo, o mês recomendado. Em verde, os meses da sua janela.</p>
+    <div class="pk"><b>Pacote ${pk.n}</b>, ${BR(pk.p)}<br><span class="hint">${pk.i}</span></div>
+    <details ${k?'':'open'}><summary>Roteiro de ${o.dur} dias</summary>${dias.map((s,i)=>`<div class="day"><b>Dia ${i+1}</b>Manhã: ${s[0]}<br>Tarde: ${s[1]}<br>Noite: ${s[2]}</div>`).join('')}</details>
+    <button class="alt" data-cal="${k}">Exportar roteiro para o calendário</button>
+    <button class="alt" data-al="${k}">Avisar quando o preço cair</button></article>`}).join('');
+  $('#res').querySelectorAll('[data-cal]').forEach(b=>b.onclick=()=>{const a=top[b.dataset.cal];ics(a,o,roteiro(a.x,o.dur,o.ints))});
+  $('#res').querySelectorAll('[data-al]').forEach(b=>b.onclick=()=>criaAlerta(top[b.dataset.al],b));
+  $('#res').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
+};
+// Alertas: o preço de hoje é simulado e varia por dia
+function precoHoje(x,pes,dur){const d=new Date(),seed=Math.sin(d.getDate()*12.9+d.getMonth()*78.2+x.id.charCodeAt(0))*43758;const r=seed-Math.floor(seed);return pes*(x.v+dur*x.d)*x.p[now]*(.9+r*.2)}
+function lerAl(){try{return JSON.parse(localStorage.getItem('al')||'[]')}catch(e){return[]}}
+function gravaAl(l){try{localStorage.setItem('al',JSON.stringify(l))}catch(e){}}
+function criaAlerta(a,b){
+  const l=lerAl().filter(x=>x.id!==a.x.id);
+  l.push({id:a.x.id,pes:ult.o.pes,dur:ult.o.dur,ref:precoHoje(a.x,ult.o.pes,ult.o.dur)});gravaAl(l);
+  if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();
+  b.textContent='Alerta ativado';mostraAl();
+}
+function mostraAl(){
+  const l=lerAl();if(!l.length){$('#alertas').innerHTML='';return}
+  $('#alertas').innerHTML='<div class="card"><h2>Seus alertas</h2>'+l.map(a=>{
+    const x=D.find(d=>d.id===a.id),p=precoHoje(x,a.pes,a.dur),v=p/a.ref-1;
+    if(v<=-.05&&'Notification' in window&&Notification.permission==='granted'&&!sessionStorage.getItem('n'+a.id)){new Notification('Rota Certa',{body:`${x.n} ficou ${Math.round(-v*100)}% mais barato.`});try{sessionStorage.setItem('n'+a.id,1)}catch(e){}}
+    return `<div class="day"><b>${x.n}</b>${BR(p)} hoje, ${v<=-.05?`<span class="down">${Math.round(-v*100)}% abaixo do preço do alerta</span>`:`${v>0?'+':''}${Math.round(v*100)}% em relação ao alerta`}</div>`}).join('')+'<button class="alt" id="lim">Remover alertas</button></div>';
+  $('#lim').onclick=()=>{gravaAl([]);mostraAl()};
+}
+mostraAl();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
